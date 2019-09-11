@@ -1,14 +1,12 @@
 const csv = require('csvtojson')
-const { getDistanceFromLatLonInKm, getLatLonFromZip } = require('./geodistance')
+const { getDistanceFromLatLonInKm, getLatLonFromZip, getLatLonFromAddress } = require('./geodistance')
 let stores = []
 
 const loadJson = async () => {
     stores = stores.length ? stores : await csv().fromFile('../store-locations.csv')
 }
 
-const getClosestStoreByZip = async (zip, units = 'km') => {
-    await loadJson()
-    const from = await getLatLonFromZip(zip)
+const getStoreFrom = (from, units) => {
     let closestStore = null
     let dist = Infinity
     for(let i = 0; i < stores.length ; i++) {
@@ -19,11 +17,23 @@ const getClosestStoreByZip = async (zip, units = 'km') => {
             dist = curDist
         }
     }
-    return closestStore
+    if(units === 'mi') {
+        dist = dist / 1.609
+    }
+    return {...closestStore, Distance: Number.parseFloat(dist).toFixed(2)}
 }
 
-const getClosestStoreByPlace = () => {
-
+const getClosestStoreByZip = async (zip, units = 'km') => {
+    await loadJson()
+    const from = await getLatLonFromZip(zip)
+    return getStoreFrom(from, units)
 }
-module.exports = {getClosestStoreByZip, getClosestStoreByPlace}
+
+const getClosestStoreByAddress = async (address, units = 'km') => {
+    await loadJson()
+    const from = await getLatLonFromAddress(address)
+    return getStoreFrom(from, units)
+}
+
+module.exports = {getClosestStoreByZip, getClosestStoreByAddress}
 

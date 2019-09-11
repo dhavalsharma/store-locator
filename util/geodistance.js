@@ -24,4 +24,11 @@ const getLatLonFromZip = async (zip) => {
     const response = await got(url, {json: true})
     return {lat: response.body[0].lat, lon: response.body[0].lon}
 }
-module.exports = { getDistanceFromLatLonInKm, getLatLonFromZip } 
+
+const getLatLonFromAddress = async (address) => {
+    const url = `https://nominatim.openstreetmap.org/search?q=${address}&format=json`;
+    const response = await got(url, {json: true})
+    return {lat: response.body[0].lat, lon: response.body[0].lon}
+}
+
+module.exports = { getDistanceFromLatLonInKm, getLatLonFromZip, getLatLonFromAddress } 
